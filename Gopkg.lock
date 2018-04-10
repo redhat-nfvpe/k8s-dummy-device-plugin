@@ -104,12 +104,12 @@
 [[projects]]
   name = "k8s.io/kubernetes"
   packages = ["pkg/kubelet/apis/deviceplugin/v1alpha"]
-  revision = "fc32d2f3698e36b93322a3465f63a14e9f0eaead"
-  version = "v1.10.0"
+  revision = "9f8ebd171479bec0ada837d7ee641dec2f8c6dd1"
+  version = "v1.9.6"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e5cf097c3170a45497a438e3c9796afbcadf16ed4314bb5721f54612d1d385da"
+  inputs-digest = "af564af3ea8fa4c4f2406c0687633e155871be5d3a2274d2bacc8e09cfffde65"
   solver-name = "gps-cdcl"
   solver-version = 1
