@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/golang/glog"
 	"net"
@@ -54,6 +55,9 @@ func Register() error {
 
 
 func main(){
+	flag.Parse()
+	flag.Lookup("logtostderr").Value.Set("true")
+
 	// Registers with Kubelet.
 	err := Register()
 	if err != nil {
