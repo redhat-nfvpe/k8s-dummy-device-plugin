@@ -33,6 +33,9 @@ func (ddm *DummyDeviceManager) Init() error {
 	return nil
 }
 
+// discoverDummyResources populates device list
+// TODO: We currently only do this once at init, need to change it to do monitoring
+//		 and health state update
 func (ddm *DummyDeviceManager) discoverDummyResources() error {
 	glog.Info("Discovering dummy devices")
 	raw, err := ioutil.ReadFile("./dummyResources.json")
@@ -104,10 +107,12 @@ func (ddm *DummyDeviceManager) Stop() error {
 	return ddm.cleanup()
 }
 
+// healthcheck monitors and updates device status
+// TODO: Currently does nothing, need to implement
 func (ddm *DummyDeviceManager) healthcheck() error {
 	for {
 		glog.Info(ddm.devices)
-		time.Sleep(30 * time.Second)
+		time.Sleep(60 * time.Second)
 	}
 }
 
@@ -202,14 +207,17 @@ func main() {
 		health: make(chan *pluginapi.Device),
 	}
 
+	// Populate device list
 	err := ddm.discoverDummyResources()
 	if err != nil {
 		glog.Fatal(err)
 	}
 
+	// Respond to syscalls for termination
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
+	// Start grpc server
 	err = ddm.Start()
 	if err != nil {
 		glog.Fatalf("Could not start device plugin: %v", err)
