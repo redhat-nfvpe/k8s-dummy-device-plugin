@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dummy-pod
+spec:
+  containers:
+    - name: demo-container-1
+      image: karlherler/pause 
+      resources:
+        limits:
+          dummy/dummyDev: 2
