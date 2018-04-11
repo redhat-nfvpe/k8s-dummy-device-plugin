@@ -182,7 +182,7 @@ func (ddm *DummyDeviceManager) Allocate(ctx context.Context, rqt *pluginapi.Allo
 	resp := new(pluginapi.AllocateResponse)
 	for _, id := range rqt.DevicesIDs {
 		if _, ok := ddm.devices[id]; ok {
-			resp.Envs["DUMMY_DEVICES"] = strings.Join(rqt.DevicesIDs, ",")
+			resp.Envs = map[string]string{"DUMMY_DEVICES": strings.Join(rqt.DevicesIDs, ",")}
 			glog.Info("Allocated interface ", id)
 		} else {
 			glog.Info("Can't allocate interface ", id)
