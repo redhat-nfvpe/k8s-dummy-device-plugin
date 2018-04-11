@@ -134,7 +134,7 @@ func Register() error {
 		Version: pluginapi.Version,
 		// Name of the unix socket the device plugin is listening on
 		// PATH = path.Join(DevicePluginPath, endpoint)
-		Endpoint: "dummy",
+		Endpoint: "dummy.sock",
 		// Schedulable resource name.
 		ResourceName: "dummy/dummyDev",
 	}
