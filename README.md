@@ -8,4 +8,22 @@ In essence, it works as a kind of echo device. One specifies the (albeit pretend
 
 ## Building
 
-This plugin is built by 
+This plugin is built by simply building the `dummy.go` file, such as:
+
+```
+go build dummy.go
+```
+
+Dependencies are managed and versioned internally with [dep](https://github.com/golang/dep).
+
+## Deployment via daemonSet
+
+
+
+## Usage
+
+Currently, no arguments are honored at runtime.
+
+## Configuration
+
+Configuration of the "pretend" devices are in the `./dummyResources.json` file.

@@ -3,6 +3,10 @@ language: go
 # for the detail
 # sudo: requried
 dist: trusty
+env:
+  global:
+    - REGISTRY_USER=nfvperobot
+    - secure: "ca+qSuPGFyg75kspazh0W21sk/0Eag8jD5Hwq8br0mr3KMt/OvujEbvvEekHIS1i8gn27NQPHKQxWMF2ntZr6obD28GfOc88w4SaWJDp4lFR4x2VvpKdPIqHKVxt3DRwJ4YKLH3E70QL4bJAh4ScxI0AeKB3EDCh4wOwEWF7AfjgKNfNFxoJa5arfdd1nfGfGjHEArHO39YY5uXZmdWGEQ/QyCDJy39RQcrqwvfErM6GXoO43cmRJkzEh45A5M/bdZ+6wpR/LKevp2ftWprOref4Y9GevJoEtDzZb47CXMZSmjB7JJUj9vWUiGrGm0TSZwJfOsw07Fs1ZzE5IHgSwdPldVn+XUCQICJY7pS3mAnyJ+lwCnrzTvKYd46V08JJ/VJzfZFlgbsygiMdPMypfEZ/0Ll51MXKFH3mPP2KYxjkgUZA8CAPvSWpMeLLAO+neSVas+CC5+C3pfaBEYGbLGZXim7Jtdxw2nVeOKaKQLZn/c3W+zrTbWV/obYOfUH5x0XS9IA/J6aUm4M3tq3n0SVGIk3EKi7fF4kESf0xW+6IyKEFs8k1tynQhWZ7i4gTwQ9ug+XyIm6HWGfUz3YkZVkLQhHDfwJ9DSYvXO3seWigY1GkY+dDys5Nb+loiR1Y0mKrDFdTw91GIpde3ayys/b+Klj0RYY17CWuQEh+9NA="
 
 before_install:
   - sudo apt-get update -qq
@@ -20,5 +24,17 @@ before_script:
 script:
   - go build dummy.go
 
+# These are kind of better than "after_success" as they can be more conditional
+# e.g. when merging into master.
+# before_deploy:
+# deploy:
+#   provider: script
+#   script: docker push nfvpe/dummy-dp
+#   on:
+#     branch: master
+
+# Using this for now so it triggers every time other tests succeed.
 after_success:
-  # stub.
+  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+  - docker build -t nfvpe/dummy-dp .
+  - docker push nfvpe/dummy-dp
