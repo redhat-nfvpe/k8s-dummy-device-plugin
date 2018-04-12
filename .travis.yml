@@ -1,0 +1,40 @@
+language: go
+# see https://docs.travis-ci.com/user/reference/overview/#Virtualization-environments
+# for the detail
+# sudo: requried
+dist: trusty
+env:
+  global:
+    - REGISTRY_USER=nfvperobot
+    - secure: "W0weIu0SPyhxwdmLWrgWp8PoKpmnsUSR++P5f5rit0V+qc139n0pXwAyQ7BNAeOK9ZvcYXBAFltKhBt1bbO29Cu65eSdVPgyL7aozeBpKX7ANYlnF24KJYKWg4iGuIuJYNnVTwpf/4cT4DkfKgs8jWjK6rKcHTFXxvgdy7eKGNfq4W7IJv0nEYGyMMo1+3UcWJu8kr4+tSEJk/j4M0+SDoueal8Lt79WyhTihrCyYoq5rvim5d1wZtLN4ouaEfu1uhkJbYKwwg3UKFjdnzqABW5nrHBtOU1CtdVC1S21E6r1GtgeFpiSGnNl8q0Ki9zk4c7yge+u1eUSBi0h3KGP7+BeI8k3UwPfOM2UZ5VVCqSaIWLv6kOcrSZLWV1FClboj+RkwgKf7yD443b44fpH0flnyqzZMXVfMQDqbX1j/wOUaVMzPXKrVni4jW+AF5hOkePg8DMv2zN7Kk9xa0s3Z8OCcoG6LEJ19fY5CeRpfxvnS7iF2RU0gUphwXChrB/bNYMU9TW+6j+QPbKtaSlmvwXWM1uUOvTX9pIKSjWwV5ihlhE83JGYeMNd1Zw3Uk/YmmBRWIUl4p0nScUbzza3qxEBUVep4UYb6XN47WZFLP+sT5vLGIw5QmSNyc3M0JO+b/U2uNPr8+6Mh6BkkVt+z1UfVa7hXCw8yz7YH655U/Q="
+
+before_install:
+  - sudo apt-get update -qq
+
+install:
+  - go get github.com/golang/lint/golint
+
+before_script:
+  - golint .
+  - go fmt .
+  - go vet .
+  # was failing with: `gocyclo: vendor/golang.org/x/net/context/go19.go:15:14: expected type, found '=' (and 1 more errors)`
+  # - gocyclo -over 15 .
+
+script:
+  - go build -o k8s-dummy-device-plugin
+
+# These are kind of better than "after_success" as they can be more conditional
+# e.g. when merging into master.
+# before_deploy:
+# deploy:
+#   provider: script
+#   script: docker push nfvpe/dummy-dp
+#   on:
+#     branch: master
+
+# Using this for now so it triggers every time other tests succeed.
+after_success:
+  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+  - docker build -t nfvpe/dummy-device-plugin .
+  - docker push nfvpe/dummy-device-plugin
