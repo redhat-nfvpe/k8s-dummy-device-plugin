@@ -23,6 +23,7 @@ before_script:
 
 script:
   - go build -o k8s-dummy-device-plugin
+  - docker build -t nfvpe/dummy-device-plugin .
 
 # These are kind of better than "after_success" as they can be more conditional
 # e.g. when merging into master.
@@ -36,5 +37,4 @@ script:
 # Using this for now so it triggers every time other tests succeed.
 after_success:
   - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-  - docker build -t nfvpe/dummy-device-plugin .
-  - docker push nfvpe/dummy-device-plugin
+    - docker push nfvpe/dummy-device-plugin
