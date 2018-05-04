@@ -16,7 +16,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1alpha"
+	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
 )
 
 // DummyDeviceManager manages our dummy devices
@@ -182,18 +182,35 @@ func (ddm *DummyDeviceManager) ListAndWatch(emtpy *pluginapi.Empty, stream plugi
 }
 
 // Allocate devices
-func (ddm *DummyDeviceManager) Allocate(ctx context.Context, rqt *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
+func (ddm *DummyDeviceManager) Allocate(ctx context.Context, reqs *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
 	glog.Info("Allocate")
-	resp := new(pluginapi.AllocateResponse)
-	for _, id := range rqt.DevicesIDs {
-		if _, ok := ddm.devices[id]; ok {
-			resp.Envs = map[string]string{"DUMMY_DEVICES": strings.Join(rqt.DevicesIDs, ",")}
-			glog.Info("Allocated interface ", id)
-		} else {
-			glog.Info("Can't allocate interface ", id)
+	responses := pluginapi.AllocateResponse{}
+	for _, req := range reqs.ContainerRequests {
+		for _, id := range req.DevicesIDs {
+			if _, ok := ddm.devices[id]; !ok {
+				glog.Errorf("Can't allocate interface %s", id)
+				return nil, fmt.Errorf("invalid allocation request: unknown device: %s", id)
+			}
 		}
+		glog.Info("Allocated interfaces ", req.DevicesIDs)
+		response := pluginapi.ContainerAllocateResponse{
+			Envs: map[string]string{"DUMMY_DEVICES": strings.Join(req.DevicesIDs, ",")},
+		}
+		responses.ContainerResponses = append(responses.ContainerResponses, &response)
 	}
-	return resp, nil
+	return &responses, nil
+}
+
+// GetDevicePluginOptions returns options to be communicated with Device Manager 
+func (ddm *DummyDeviceManager) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
+	return &pluginapi.DevicePluginOptions{}, nil
+}
+
+// PreStartContainer is called, if indicated by Device Plugin during registeration phase,
+// before each container start. Device plugin can run device specific operations
+// such as reseting the device before making devices available to the container
+func (ddm *DummyDeviceManager) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
+	return &pluginapi.PreStartContainerResponse{}, nil
 }
 
 func main() {
