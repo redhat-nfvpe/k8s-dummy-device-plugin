@@ -37,4 +37,4 @@ script:
 # Using this for now so it triggers every time other tests succeed.
 after_success:
   - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-    - docker push nfvpe/dummy-device-plugin
+  - docker push nfvpe/dummy-device-plugin
